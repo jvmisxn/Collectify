@@ -1,0 +1,5 @@
+{
+  "name": "Gemini Collection Manager",
+  "description": "An AI-powered application to manage your personal collections of books, trading cards, Blu-rays, comic books, and records. Use Gemini to automatically fetch item details and enrich your collection data.",
+  "requestFramePermissions": []
+}
