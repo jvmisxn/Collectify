@@ -24,7 +24,7 @@ export const fetchItemDetails = async (title: string, collectionType: Collection
     const properties: { [key: string]: { type: Type, description: string } } = {
         imageUrl: {
             type: Type.STRING,
-            description: `A URL to an image of the ${config.singular}.`
+            description: `A direct, publicly accessible, high-quality image URL for the item's cover art. For books, prioritize the first edition cover if possible.`
         }
     };
 
@@ -35,7 +35,7 @@ export const fetchItemDetails = async (title: string, collectionType: Collection
         };
     });
 
-    const prompt = `Based on the title "${title}", provide details for this ${config.singular}. If you cannot find information for a field, omit it from the response.`;
+    const prompt = `Find details for the ${config.singular} titled "${title}". It is crucial to find a high-quality, publicly accessible image URL for its cover or primary artwork to be used in the 'imageUrl' field. If you cannot find information for a field, omit it from the response.`;
 
     try {
         // Fix: Use the recommended 'gemini-2.5-flash' model and correct API usage for generating content.

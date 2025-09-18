@@ -22,6 +22,9 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSave, item, co
   });
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const config = COLLECTION_CONFIG[collectionType];
+  const detailFields = config.fields;
 
   useEffect(() => {
     setFormData({
@@ -34,7 +37,7 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSave, item, co
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    if (name in formData.details) {
+    if (detailFields.includes(name)) {
       setFormData(prev => ({
         ...prev,
         details: { ...prev.details, [name]: value }
@@ -84,18 +87,15 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSave, item, co
 
   if (!isOpen) return null;
 
-  const config = COLLECTION_CONFIG[collectionType];
-  const detailFields = config.fields;
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-primary rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+      <div className="bg-primary rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-4 border-b border-secondary">
           <h2 className="text-2xl font-bold text-light">{item ? 'Edit' : 'Add'} {config.singular}</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-white text-2xl">&times;</button>
         </div>
         
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-slate-300">Title</label>
             <div className="flex items-center space-x-2 mt-1">
@@ -121,34 +121,58 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSave, item, co
             {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
           </div>
 
-          <div>
-             <label htmlFor="imageUrl" className="block text-sm font-medium text-slate-300">Image</label>
-            <div className="mt-1 flex items-center space-x-4">
-                <img 
-                  src={formData.imageUrl || 'https://picsum.photos/seed/placeholder/100/150'} 
-                  alt="Preview" 
-                  className="w-24 h-36 object-cover rounded-md bg-slate-700"
-                  onError={(e) => {
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-1">
+                <label className="block text-sm font-medium text-slate-300 mb-1">Image</label>
+                <img
+                    src={formData.imageUrl || 'https://picsum.photos/seed/placeholder/200/300'}
+                    alt="Preview"
+                    className="w-full h-auto object-cover aspect-[2/3] rounded-md bg-slate-700"
+                    onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    const fallbackSrc = 'https://picsum.photos/seed/placeholder/100/150';
+                    const fallbackSrc = 'https://picsum.photos/seed/placeholder/200/300';
                     if (target.src !== fallbackSrc) {
                         target.onerror = null;
                         target.src = fallbackSrc;
                     }
-                  }}
+                    }}
                 />
-                <input
-                    type="file"
-                    id="imageUrl"
-                    name="imageUrl"
-                    onChange={handleFileChange}
-                    accept="image/*"
-                    className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-accent file:text-white hover:file:bg-sky-400"
-                />
+            </div>
+            <div className="md:col-span-2 space-y-4 pt-6">
+                <div>
+                    <label htmlFor="imageUrl" className="block text-sm font-medium text-slate-300">Image URL</label>
+                    <input
+                      type="text"
+                      id="imageUrl"
+                      name="imageUrl"
+                      value={formData.imageUrl || ''}
+                      onChange={handleChange}
+                      placeholder="https://example.com/image.jpg"
+                      className="mt-1 block w-full bg-slate-700 text-light border border-slate-600 rounded-md shadow-sm focus:ring-accent focus:border-accent"
+                    />
+                </div>
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div className="w-full border-t border-slate-600" />
+                    </div>
+                    <div className="relative flex justify-center">
+                        <span className="bg-primary px-2 text-sm text-slate-400">OR</span>
+                    </div>
+                </div>
+                <div>
+                    <label htmlFor="imageUpload" className="block text-sm font-medium text-slate-300">Upload an image</label>
+                    <input
+                        type="file"
+                        id="imageUpload"
+                        onChange={handleFileChange}
+                        accept="image/*"
+                        className="mt-1 block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-secondary file:text-light hover:file:bg-slate-600 cursor-pointer"
+                    />
+                </div>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-secondary">
             {detailFields.map(field => (
                 <div key={field}>
                     <label htmlFor={field} className="block text-sm font-medium text-slate-300 capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
